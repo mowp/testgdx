@@ -43,30 +43,26 @@ public class Main extends ApplicationAdapter {
         if (direction == 0){
             x-=5;
         }
-        if (x>width-w){
-            direction = 0;
-        }
-        if (x<0){
-            direction = 1;
-        }
         if (direction2 == 1){
             x2+=5;
         }
         if (direction2 == 0){
             x2-=5;
         }
-        if (x2>width-w2){
-            direction2 = 0;
-        }
-        if (x2<0){
-            direction2 = 1;
-        }
-        if (x+w==x2){
+
+        if(x+w>width || x+w==x2){
             direction = 0;
         }
-        if (x==x+w){
+        if(x<0 || x==x2+w2){
+            direction = 1;
+        }
+        if(x2+w2>width || x2+w2==x){
+            direction2 = 0;
+        }
+        if(x2<0 || x2==x+w){
             direction2 = 1;
         }
+
 
         sR.begin(ShapeRenderer.ShapeType.Filled);
             sR.setColor(Color.BLACK);
