@@ -2,6 +2,7 @@ package io.github.some_example_name;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,16 +15,14 @@ public class Main extends ApplicationAdapter {
     private SpriteBatch batch;
     private Texture image;
     ShapeRenderer sR;
-    int x;
-    int x2 = 250;
-    int y;
-    int y2;
-    int w = 25;
-    int w2 = 25;
-    int h = 25;
-    int h2 = 25;
+    int playerX;
+    int ammoX;
+    int playerY;
+    int ammoY;
+    int playerW = 50;
+    int playerH = 15;
     int direction = 1;
-    int direction2 = 1;
+    int ammoMove = 1;
 
     @Override
     public void create() {
@@ -37,37 +36,29 @@ public class Main extends ApplicationAdapter {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
         int width = Gdx.graphics.getWidth();
         int height = Gdx.graphics.getHeight();
-        if (direction == 1){
-            x+=5;
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && playerX>0){
+            playerX-=5;
         }
-        if (direction == 0){
-            x-=5;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && playerX+playerW<width){
+            playerX+=5;
         }
-        if (direction2 == 1){
-            x2+=5;
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)){
+            ammoX = playerX + playerW/2;
+            ammoY = playerY+playerH;
+            ammoMove = 0;
         }
-        if (direction2 == 0){
-            x2-=5;
+        if (ammoMove == 1){
+            System.out.println("Ammo is stationary");
         }
-
-        if(x+w>width || x+w==x2){
-            direction = 0;
-        }
-        if(x<0 || x==x2+w2){
-            direction = 1;
-        }
-        if(x2+w2>width || x2+w2==x){
-            direction2 = 0;
-        }
-        if(x2<0 || x2==x+w){
-            direction2 = 1;
+        if (ammoMove == 0){
+            ammoY +=5;
         }
 
 
         sR.begin(ShapeRenderer.ShapeType.Filled);
             sR.setColor(Color.BLACK);
-            sR.rect(x,y,w,h);
-            sR.rect(x2,y2,w2,h2);
+            sR.rect(playerX,playerY,playerW,playerH);
+            sR.circle(ammoX,ammoY,5,5);
         sR.end();
     }
 
