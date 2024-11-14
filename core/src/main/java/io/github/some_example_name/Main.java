@@ -48,7 +48,6 @@ public class Main extends ApplicationAdapter {
             ammoMove = 0;
         }
         if (ammoMove == 1){
-            System.out.println("Ammo is stationary");
         }
         if (ammoMove == 0){
             ammoY +=5;
