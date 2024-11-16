@@ -4,82 +4,103 @@ import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ScreenUtils;
 
-/** {@link com.badlogic.gdx.ApplicationListener} implementation shared by all platforms. */
 public class Main extends ApplicationAdapter {
-    private SpriteBatch batch;
-    private Texture image;
-    ShapeRenderer sR;
-    int playerX;
-    int ammoX;
-    int playerY;
-    int ammoY;
-    int playerW = 50;
-    int playerH = 15;
-    int direction = 1;
-    int ammoMove = 1;
+    private ShapeRenderer sR;
+    int playerX, playerY;
+    int playerW = 16, playerH = 16;
+    float rotationAngle;
+    
+    // Mouse position
+    int mouseX, mouseY;
 
-    int enemyX;
-    int enemyY = 400;
-    int enemyW = 50;
-    int enemyH = 15;
+    // Movement and jumping
+    int speed = 5;
+    int jumpHeight = 10;
+    int gravity = -1;
+    int velocityY = 0;
+    boolean isJumping = false;
+    int groundLevel = 0;
+
+    // Line to draw
+    boolean isLineActive = false;
 
     @Override
     public void create() {
         sR = new ShapeRenderer();
-        batch = new SpriteBatch();
-        image = new Texture("libgdx.png");
+        playerX = Gdx.graphics.getWidth() / 2 - playerW / 2;
+        playerY = groundLevel;
     }
 
     @Override
     public void render() {
         ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
+
         int width = Gdx.graphics.getWidth();
         int height = Gdx.graphics.getHeight();
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && playerX>0){
-            playerX-=5;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.A) && playerX > 0) {
+            playerX -= speed;
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && playerX+playerW<width){
-            playerX+=5;
-        }
-        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && ammoMove == 1){
-            ammoX = playerX + playerW/2;
-            ammoY = playerY+playerH;
-            ammoMove = 0;
-        }
-        if (ammoY>height){
-            ammoMove = 1;
-            System.out.println("exited boundaries");
-        }
-        if (ammoMove == 1){
-            ammoY = 0;
-            ammoX = 0;
-        }
-        if (ammoMove == 0){
-            ammoY +=5;
-        }
-        if (ammoY+5==enemyY && enemyX<ammoX && ammoX<enemyX+enemyW){
-            System.out.println("hit");
-            ammoMove = 1;
+        if (Gdx.input.isKeyPressed(Input.Keys.D) && playerX + playerW < width) {
+            playerX += speed;
         }
 
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !isJumping) {
+            velocityY = jumpHeight;
+            isJumping = true;  
+        }
+
+        // gravity
+        if (isJumping) {
+            velocityY += gravity;
+            playerY += velocityY;
+
+            if (playerY <= groundLevel) {
+                playerY = groundLevel;
+                isJumping = false;
+                velocityY = 0;
+            }
+        }
+
+        // Get the mouse position
+        mouseX = Gdx.input.getX();
+        mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();  // convert y to screen coords
+
+        // Calculate the angle from the center of the player to the mouse
+        float deltaX = mouseX - (playerX + playerW / 2);  // diff x from player centre to mouse
+        float deltaY = mouseY - (playerY + playerH / 2);  // diff y from player centre to mouse
+        rotationAngle = (float) Math.atan2(deltaY, deltaX);  // angle in rad
+
+        System.out.println("Mouse X: " + mouseX + " Mouse Y: " + mouseY);
+        System.out.println("Delta X: " + deltaX + " Delta Y: " + deltaY);
+        System.out.println("Angle: " + rotationAngle);  // ang in rad
+
+        if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
+            isLineActive = true;
+        } else {
+            isLineActive = false;
+        }
 
         sR.begin(ShapeRenderer.ShapeType.Filled);
-            sR.setColor(Color.BLACK);
-            sR.rect(playerX,playerY,playerW,playerH);
-            sR.circle(ammoX,ammoY,5,5);
-            sR.rect(enemyX,enemyY,enemyW,enemyH);
+        sR.setColor(Color.BLACK);
+        sR.rect(playerX, playerY, playerW, playerH);
+        
+        if (isLineActive) {
+            float startX = playerX + playerW / 2;  // top mid x
+            float startY = playerY + playerH;  // top mid y
+
+            sR.setColor(Color.RED);
+            sR.line(startX, startY, mouseX, mouseY);  //draw
+        }
+
         sR.end();
     }
 
     @Override
     public void dispose() {
-        batch.dispose();
-        image.dispose();
+        sR.dispose();
     }
 }

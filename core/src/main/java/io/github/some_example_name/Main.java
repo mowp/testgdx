@@ -17,11 +17,11 @@ public class Main extends ApplicationAdapter {
     int mouseX, mouseY;
 
     // Movement and jumping
-    int speed = 5;  // Move speed (horizontal)
+    int speed = 5;
     int jumpHeight = 10;
     int gravity = -1;
-    int velocityY = 0;  // Vertical velocity for jumping + gravity
-    boolean isJumping = false;  // Check if player is in the air
+    int velocityY = 0;
+    boolean isJumping = false;
     int groundLevel = 0;
 
     // Line to draw
@@ -30,18 +30,17 @@ public class Main extends ApplicationAdapter {
     @Override
     public void create() {
         sR = new ShapeRenderer();
-        playerX = Gdx.graphics.getWidth() / 2 - playerW / 2;  // Start the player in the center
+        playerX = Gdx.graphics.getWidth() / 2 - playerW / 2;
         playerY = groundLevel;
     }
 
     @Override
     public void render() {
-        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);  // Clear the screen with a background color
+        ScreenUtils.clear(0.15f, 0.15f, 0.2f, 1f);
 
         int width = Gdx.graphics.getWidth();
         int height = Gdx.graphics.getHeight();
 
-        // Player movement (left + right with arrow keys)
         if (Gdx.input.isKeyPressed(Input.Keys.A) && playerX > 0) {
             playerX -= speed;
         }
@@ -50,57 +49,54 @@ public class Main extends ApplicationAdapter {
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && !isJumping) {
-            velocityY = jumpHeight;  // Set initial velocity when jumping
-            isJumping = true;  // Tell program player is in the air
+            velocityY = jumpHeight;
+            isJumping = true;  
         }
 
-        // Gravity simulation
+        // gravity
         if (isJumping) {
-            velocityY += gravity;  // Apply gravity over time
-            playerY += velocityY;  // Change position based on velocity
+            velocityY += gravity;
+            playerY += velocityY;
 
-            // Prevent going past ground level
             if (playerY <= groundLevel) {
-                playerY = groundLevel;  // Reset position to ground level
-                isJumping = false;  // Tell program player is on the ground
-                velocityY = 0;  // Reset vertical velocity
+                playerY = groundLevel;
+                isJumping = false;
+                velocityY = 0;
             }
         }
 
         // Get the mouse position
         mouseX = Gdx.input.getX();
-        mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();  // Convert Y to match screen coordinates
+        mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();  // convert y to screen coords
 
         // Calculate the angle from the center of the player to the mouse
-        float deltaX = mouseX - (playerX + playerW / 2);  // Difference in X between the player center and mouse
-        float deltaY = mouseY - (playerY + playerH / 2);  // Difference in Y between the player center and mouse
-        rotationAngle = (float) Math.atan2(deltaY, deltaX);  // Calculate the angle in radians
+        float deltaX = mouseX - (playerX + playerW / 2);  // diff x from player centre to mouse
+        float deltaY = mouseY - (playerY + playerH / 2);  // diff y from player centre to mouse
+        rotationAngle = (float) Math.atan2(deltaY, deltaX);  // angle in rad
 
-        // Output the mouse position, delta, and angle (for debugging)
+        float lineLength = (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY); //length of line
+
         System.out.println("Mouse X: " + mouseX + " Mouse Y: " + mouseY);
         System.out.println("Delta X: " + deltaX + " Delta Y: " + deltaY);
-        System.out.println("Angle: " + rotationAngle);  // Angle in radians
+        System.out.println("Angle: " + rotationAngle);  // ang in rad
+        System.out.println("Line Length: " + lineLength);
 
-        // Check for mouse click (left-click to draw the line)
         if (Gdx.input.isButtonPressed(Input.Buttons.LEFT)) {
             isLineActive = true;
         } else {
             isLineActive = false;
         }
 
-        // Start drawing the player and line
         sR.begin(ShapeRenderer.ShapeType.Filled);
         sR.setColor(Color.BLACK);
-        sR.rect(playerX, playerY, playerW, playerH);  // Draw the player as a rectangle
+        sR.rect(playerX, playerY, playerW, playerH);
         
-        // If the line is active (mouse is clicked), draw the line from the top middle of the player to the mouse
         if (isLineActive) {
-            float startX = playerX + playerW / 2;  // Top-middle X of the player
-            float startY = playerY + playerH;  // Top-middle Y of the player
+            float startX = playerX + playerW / 2;  // top mid x
+            float startY = playerY + playerH;  // top mid y
 
-            // Draw the line from the top-middle of the player to the mouse position
             sR.setColor(Color.RED);
-            sR.line(startX, startY, mouseX, mouseY);  // Draw the line
+            sR.line(startX, startY, mouseX, mouseY);  //draw
         }
 
         sR.end();
